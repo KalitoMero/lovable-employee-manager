@@ -1,29 +1,27 @@
 
 import React from 'react';
 import { useEmployees } from '@/hooks/useEmployees';
-import EmployeeList from '@/components/EmployeeList';
+import DepartmentView from '@/components/DepartmentView';
 import Navigation from '@/components/Navigation';
 
-const Index: React.FC = () => {
+const Departments: React.FC = () => {
   const {
-    employees,
     loading,
-    addEmployee,
     deleteEmployee,
+    getCostCenters,
+    getEmployeesByCostCenter,
   } = useEmployees();
 
-  const handleAddEmployee = (name: string, costCenter: string, imageUrl: string) => {
-    addEmployee({ name, costCenter, imageUrl });
-  };
+  const costCenters = getCostCenters();
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Navigation />
       
       <main className="flex-1 container py-8 px-4 md:px-6 animate-fade-in">
-        <EmployeeList
-          employees={employees}
-          onAddEmployee={handleAddEmployee}
+        <DepartmentView
+          costCenters={costCenters}
+          getEmployeesByDepartment={getEmployeesByCostCenter}
           onDeleteEmployee={deleteEmployee}
           isLoading={loading}
         />
@@ -32,4 +30,4 @@ const Index: React.FC = () => {
   );
 };
 
-export default Index;
+export default Departments;
