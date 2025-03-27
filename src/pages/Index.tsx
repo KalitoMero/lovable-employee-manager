@@ -10,6 +10,9 @@ const Index: React.FC = () => {
     loading,
     addEmployee,
     deleteEmployee,
+    sortField,
+    sortDirection,
+    setSorting,
   } = useEmployees();
 
   const handleAddEmployee = (name: string, costCenter: string, imageUrl: string) => {
@@ -26,6 +29,9 @@ const Index: React.FC = () => {
           onAddEmployee={handleAddEmployee}
           onDeleteEmployee={deleteEmployee}
           isLoading={loading}
+          sortField={sortField}
+          sortDirection={sortDirection}
+          onSort={setSorting}
         />
       </main>
     </div>

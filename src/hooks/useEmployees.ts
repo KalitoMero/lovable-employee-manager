@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Employee } from '@/types';
 import { toast } from 'sonner';
@@ -114,9 +113,14 @@ const loadEmployeesFromChunks = (): Employee[] => {
   }
 };
 
+export type SortField = 'name' | 'costCenter';
+export type SortDirection = 'asc' | 'desc';
+
 export function useEmployees() {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
+  const [sortField, setSortField] = useState<SortField>('name');
+  const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
 
   // Load employees from storage
   useEffect(() => {
@@ -139,7 +143,7 @@ export function useEmployees() {
       }
     } catch (error) {
       console.error('Error loading employees:', error);
-      toast.error('Failed to load employee data');
+      toast.error('Fehler beim Laden der Mitarbeiterdaten');
     } finally {
       setLoading(false);
     }
@@ -150,10 +154,23 @@ export function useEmployees() {
     if (!loading) {
       const success = storeEmployeesInChunks(employees);
       if (!success) {
-        toast.error('Storage limit reached! Some data may not be saved.');
+        toast.error('Speicherlimit erreicht! Einige Daten wurden möglicherweise nicht gespeichert.');
       }
     }
   }, [employees, loading]);
+
+  // Sort employees based on current sort field and direction
+  const sortedEmployees = [...employees].sort((a, b) => {
+    if (sortField === 'name') {
+      return sortDirection === 'asc' 
+        ? a.name.localeCompare(b.name)
+        : b.name.localeCompare(a.name);
+    } else {
+      return sortDirection === 'asc'
+        ? a.costCenter.localeCompare(b.costCenter)
+        : b.costCenter.localeCompare(a.costCenter);
+    }
+  });
 
   // Add a new employee
   const addEmployee = async (employee: Omit<Employee, 'id'>) => {
@@ -168,11 +185,11 @@ export function useEmployees() {
       };
       
       setEmployees((prev) => [...prev, newEmployee]);
-      toast.success(`${employee.name} added successfully`);
+      toast.success(`${employee.name} erfolgreich hinzugefügt`);
       return newEmployee;
     } catch (error) {
       console.error('Error adding employee:', error);
-      toast.error('Failed to add employee');
+      toast.error('Fehler beim Hinzufügen des Mitarbeiters');
       throw error;
     }
   };
@@ -183,7 +200,7 @@ export function useEmployees() {
     setEmployees((prev) => prev.filter((employee) => employee.id !== id));
     
     if (employeeToDelete) {
-      toast.success(`${employeeToDelete.name} removed`);
+      toast.success(`${employeeToDelete.name} entfernt`);
     }
   };
 
@@ -202,10 +219,10 @@ export function useEmployees() {
           employee.id === id ? { ...employee, ...processedData } : employee
         )
       );
-      toast.success('Employee updated');
+      toast.success('Mitarbeiter aktualisiert');
     } catch (error) {
       console.error('Error updating employee:', error);
-      toast.error('Failed to update employee');
+      toast.error('Fehler beim Aktualisieren des Mitarbeiters');
     }
   };
 
@@ -220,13 +237,28 @@ export function useEmployees() {
     return employees.filter((employee) => employee.costCenter === costCenter);
   };
 
+  // Set sort field and direction
+  const setSorting = (field: SortField) => {
+    if (field === sortField) {
+      // Toggle direction if clicking on the same field
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      // Default to ascending order when changing fields
+      setSortField(field);
+      setSortDirection('asc');
+    }
+  };
+
   return {
-    employees,
+    employees: sortedEmployees,
     loading,
     addEmployee,
     deleteEmployee,
     updateEmployee,
     getCostCenters,
     getEmployeesByCostCenter,
+    sortField,
+    sortDirection,
+    setSorting,
   };
 }
