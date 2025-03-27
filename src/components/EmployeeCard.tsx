@@ -36,11 +36,11 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({
   
   return (
     <Card className={`overflow-hidden ${detailed ? 'h-full' : ''} relative group transition-all duration-300 hover:shadow-md`}>
-      <div className="relative aspect-square overflow-hidden">
+      <div className="relative w-full h-48">
         <img
           src={employee.imageUrl || '/placeholder.svg'}
           alt={`Foto von ${employee.name}`}
-          className="object-cover w-full h-full max-h-[200px]"
+          className="object-cover w-full h-full"
           onError={(e) => {
             // Fallback für fehlerhafte Bilder
             (e.target as HTMLImageElement).src = '/placeholder.svg';
