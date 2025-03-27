@@ -30,7 +30,7 @@ const DepartmentView: React.FC<DepartmentViewProps> = ({
     return (
       <div className="p-8 flex items-center justify-center">
         <div className="text-center animate-pulse">
-          <p className="text-muted-foreground">Loading departments...</p>
+          <p className="text-muted-foreground">Abteilungen werden geladen...</p>
         </div>
       </div>
     );
@@ -39,9 +39,9 @@ const DepartmentView: React.FC<DepartmentViewProps> = ({
   if (costCenters.length === 0) {
     return (
       <div className="text-center py-12 bg-accent/50 rounded-lg animate-fade-in">
-        <p className="text-muted-foreground">No departments found</p>
+        <p className="text-muted-foreground">Keine Abteilungen gefunden</p>
         <p className="text-sm text-muted-foreground mt-2">
-          Add employees with cost centers to create departments
+          Fügen Sie Mitarbeiter mit Kostenstellen hinzu, um Abteilungen zu erstellen
         </p>
       </div>
     );
@@ -49,7 +49,7 @@ const DepartmentView: React.FC<DepartmentViewProps> = ({
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-semibold">Department View</h2>
+      <h2 className="text-2xl font-semibold">Abteilungsansicht</h2>
       
       <Tabs 
         value={activeTab} 
@@ -63,7 +63,7 @@ const DepartmentView: React.FC<DepartmentViewProps> = ({
               value={costCenter}
               className="flex-1 data-[state=active]:bg-white data-[state=active]:shadow-subtle transition-all duration-300"
             >
-              Department {costCenter}
+              Abteilung {costCenter}
             </TabsTrigger>
           ))}
         </TabsList>
@@ -83,7 +83,7 @@ const DepartmentView: React.FC<DepartmentViewProps> = ({
               ))}
               {getEmployeesByDepartment(costCenter).length === 0 && (
                 <div className="col-span-full text-center py-8 bg-accent/50 rounded-lg">
-                  <p className="text-muted-foreground">No employees in this department</p>
+                  <p className="text-muted-foreground">Keine Mitarbeiter in dieser Abteilung</p>
                 </div>
               )}
             </div>
