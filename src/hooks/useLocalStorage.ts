@@ -20,7 +20,8 @@ export function useLocalStorage<T>(
       if (isElectron && key === 'employee-manager-notification-email') {
         // Use Electron's storage for email settings
         const settings = await window.electronAPI.loadSettings();
-        return settings.notificationEmail || initialValue;
+        // Fix: Cast the notificationEmail to type T or return initialValue
+        return (settings.notificationEmail as unknown as T) || initialValue;
       } else {
         // Use regular localStorage
         const item = window.localStorage.getItem(key);
@@ -64,7 +65,7 @@ export function useLocalStorage<T>(
         if (isElectron && key === 'employee-manager-notification-email') {
           // Use Electron's storage for email settings
           await window.electronAPI.saveSettings({
-            notificationEmail: valueToStore,
+            notificationEmail: valueToStore as string,
           });
         } else {
           // Use regular localStorage
