@@ -13,7 +13,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { Trash2 } from 'lucide-react';
+import { Trash2, Edit } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import EditCostCenterForm from './EditCostCenterForm';
 
@@ -32,52 +32,56 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({
   showCostCenter = true,
   detailed = false,
 }) => {
+  const [editDialogOpen, setEditDialogOpen] = React.useState(false);
+  
   return (
     <Card className={`overflow-hidden ${detailed ? 'h-full' : ''} relative group transition-all duration-300 hover:shadow-md`}>
       <div className="relative aspect-square overflow-hidden">
         <img
           src={employee.imageUrl || '/placeholder.svg'}
           alt={`Foto von ${employee.name}`}
-          className="object-cover w-full h-full"
+          className="object-cover w-full h-full max-h-[200px]"
           onError={(e) => {
             // Fallback für fehlerhafte Bilder
             (e.target as HTMLImageElement).src = '/placeholder.svg';
           }}
         />
         
-        {onUpdate && (
-          <EditCostCenterForm
-            employee={employee}
-            onUpdate={onUpdate}
-          />
-        )}
-        
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
+        <div className="absolute bottom-2 right-2 flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          {onUpdate && (
             <Button
-              variant="destructive"
+              variant="secondary"
               size="sm"
-              className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+              onClick={() => setEditDialogOpen(true)}
             >
-              <Trash2 className="h-4 w-4" />
-              <span className="sr-only">Mitarbeiter löschen</span>
+              <Edit className="h-4 w-4" />
+              <span className="sr-only">Kostenstelle bearbeiten</span>
             </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Mitarbeiter löschen</AlertDialogTitle>
-              <AlertDialogDescription>
-                Möchten Sie {employee.name} wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Abbrechen</AlertDialogCancel>
-              <AlertDialogAction onClick={() => onDelete(employee.id)}>
-                Löschen
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+          )}
+          
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="destructive" size="sm">
+                <Trash2 className="h-4 w-4" />
+                <span className="sr-only">Mitarbeiter löschen</span>
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Mitarbeiter löschen</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Möchten Sie {employee.name} wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+                <AlertDialogAction onClick={() => onDelete(employee.id)}>
+                  Löschen
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
       </div>
       <CardContent className="p-4">
         <h3 className="font-medium truncate">{employee.name}</h3>
@@ -93,6 +97,16 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({
           </div>
         )}
       </CardContent>
+      
+      {/* Edit Dialog */}
+      {onUpdate && (
+        <EditCostCenterForm
+          employee={employee}
+          onUpdate={onUpdate}
+          open={editDialogOpen}
+          onOpenChange={setEditDialogOpen}
+        />
+      )}
     </Card>
   );
 };

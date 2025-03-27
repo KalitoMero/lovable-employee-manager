@@ -19,9 +19,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-  DialogTrigger,
 } from '@/components/ui/dialog';
-import { Edit2 } from 'lucide-react';
 import { Employee } from '@/types';
 
 const formSchema = z.object({
@@ -35,10 +33,21 @@ type FormValues = z.infer<typeof formSchema>;
 interface EditCostCenterFormProps {
   employee: Employee;
   onUpdate: (id: string, data: Partial<Employee>) => void;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
-const EditCostCenterForm: React.FC<EditCostCenterFormProps> = ({ employee, onUpdate }) => {
-  const [open, setOpen] = React.useState(false);
+const EditCostCenterForm: React.FC<EditCostCenterFormProps> = ({ 
+  employee, 
+  onUpdate,
+  open,
+  onOpenChange
+}) => {
+  const [internalOpen, setInternalOpen] = React.useState(false);
+  
+  // Use controlled or uncontrolled state based on props
+  const isOpen = open !== undefined ? open : internalOpen;
+  const setIsOpen = onOpenChange || setInternalOpen;
   
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -49,21 +58,11 @@ const EditCostCenterForm: React.FC<EditCostCenterFormProps> = ({ employee, onUpd
 
   const onSubmit = async (values: FormValues) => {
     onUpdate(employee.id, { costCenter: values.costCenter });
-    setOpen(false);
+    setIsOpen(false);
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          className="h-8 w-8 p-0 absolute top-2 right-2 text-muted-foreground hover:text-foreground"
-        >
-          <Edit2 className="h-4 w-4" />
-          <span className="sr-only">Kostenstelle bearbeiten</span>
-        </Button>
-      </DialogTrigger>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Kostenstelle bearbeiten</DialogTitle>
@@ -84,7 +83,7 @@ const EditCostCenterForm: React.FC<EditCostCenterFormProps> = ({ employee, onUpd
               )}
             />
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+              <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>
                 Abbrechen
               </Button>
               <Button type="submit">Speichern</Button>
