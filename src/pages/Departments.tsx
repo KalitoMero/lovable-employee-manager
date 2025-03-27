@@ -3,6 +3,7 @@ import React from 'react';
 import { useEmployees } from '@/hooks/useEmployees';
 import DepartmentView from '@/components/DepartmentView';
 import Navigation from '@/components/Navigation';
+import EmailNotificationSettings from '@/components/EmailNotificationSettings';
 
 const Departments: React.FC = () => {
   const {
@@ -20,6 +21,8 @@ const Departments: React.FC = () => {
       <Navigation />
       
       <main className="flex-1 container py-8 px-4 md:px-6 animate-fade-in">
+        <EmailNotificationSettings />
+        
         <DepartmentView
           costCenters={costCenters}
           getEmployeesByDepartment={getEmployeesByCostCenter}

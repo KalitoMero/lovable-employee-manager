@@ -7,3 +7,7 @@ export interface Employee {
   entryDate?: string; // Date the employee joined
   birthDate?: string; // Employee's birth date
 }
+
+export interface AppSettings {
+  notificationEmail: string; // Email for birthday notifications
+}

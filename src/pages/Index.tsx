@@ -3,6 +3,7 @@ import React from 'react';
 import { useEmployees } from '@/hooks/useEmployees';
 import EmployeeList from '@/components/EmployeeList';
 import Navigation from '@/components/Navigation';
+import EmailNotificationSettings from '@/components/EmailNotificationSettings';
 
 const Index: React.FC = () => {
   const {
@@ -25,6 +26,8 @@ const Index: React.FC = () => {
       <Navigation />
       
       <main className="flex-1 container py-8 px-4 md:px-6 animate-fade-in">
+        <EmailNotificationSettings />
+        
         <EmployeeList
           employees={employees}
           onAddEmployee={handleAddEmployee}

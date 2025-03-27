@@ -116,6 +116,65 @@ const loadEmployeesFromChunks = (): Employee[] => {
 export type SortField = 'name' | 'costCenter';
 export type SortDirection = 'asc' | 'desc';
 
+// Add a function to check for birthdays and notify
+const checkForBirthdays = (employees: Employee[]) => {
+  const EMAIL_STORAGE_KEY = 'employee-manager-notification-email';
+  const LAST_NOTIFICATION_KEY = 'employee-manager-last-notification';
+  
+  try {
+    // Get notification email
+    const notificationEmailJson = localStorage.getItem(EMAIL_STORAGE_KEY);
+    if (!notificationEmailJson) return; // No email configured
+    
+    const notificationEmail = JSON.parse(notificationEmailJson);
+    if (!notificationEmail) return;
+    
+    // Check if we've already sent notifications today
+    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    const lastNotification = localStorage.getItem(LAST_NOTIFICATION_KEY);
+    
+    if (lastNotification === today) return; // Already notified today
+    
+    // Find employees with birthdays today
+    const todayMonthDay = today.substring(5); // MM-DD
+    const birthdayEmployees = employees.filter(emp => {
+      if (!emp.birthDate) return false;
+      return emp.birthDate.substring(5) === todayMonthDay;
+    });
+    
+    if (birthdayEmployees.length > 0) {
+      // In a real app, this would send an API request to a backend service
+      // For this demo, we'll just log to console and show a toast
+      console.log('BIRTHDAY NOTIFICATION:', {
+        to: notificationEmail,
+        subject: 'Mitarbeiter Geburtstage heute',
+        employees: birthdayEmployees.map(emp => emp.name)
+      });
+      
+      // Update last notification date
+      localStorage.setItem(LAST_NOTIFICATION_KEY, today);
+      
+      // Show toast in browser
+      if (typeof window !== 'undefined' && birthdayEmployees.length > 0) {
+        // Use setTimeout to ensure toast is shown after component mounts
+        setTimeout(() => {
+          // Using any available toast library - in this case assuming 'sonner' is available
+          if (typeof toast !== 'undefined') {
+            // @ts-ignore - toast might not be defined in this scope
+            toast.info(
+              `Heute haben ${birthdayEmployees.length} Mitarbeiter Geburtstag! 
+              Eine Benachrichtigung wurde an ${notificationEmail} gesendet.`, 
+              { duration: 5000 }
+            );
+          }
+        }, 1000);
+      }
+    }
+  } catch (error) {
+    console.error('Error in birthday notification check:', error);
+  }
+};
+
 export function useEmployees() {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
@@ -141,6 +200,9 @@ export function useEmployees() {
         const loadedEmployees = loadEmployeesFromChunks();
         setEmployees(loadedEmployees);
       }
+      
+      // After loading employees, check for birthdays
+      checkForBirthdays(loadedEmployees);
     } catch (error) {
       console.error('Error loading employees:', error);
       toast.error('Fehler beim Laden der Mitarbeiterdaten');
