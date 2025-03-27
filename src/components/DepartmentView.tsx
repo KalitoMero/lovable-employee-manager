@@ -8,6 +8,7 @@ interface DepartmentViewProps {
   costCenters: string[];
   getEmployeesByDepartment: (costCenter: string) => Employee[];
   onDeleteEmployee: (id: string) => void;
+  onUpdateEmployee?: (id: string, data: Partial<Employee>) => void;
   isLoading?: boolean;
 }
 
@@ -15,6 +16,7 @@ const DepartmentView: React.FC<DepartmentViewProps> = ({
   costCenters,
   getEmployeesByDepartment,
   onDeleteEmployee,
+  onUpdateEmployee,
   isLoading = false,
 }) => {
   const [activeTab, setActiveTab] = useState<string>(costCenters[0] || '');
@@ -76,6 +78,7 @@ const DepartmentView: React.FC<DepartmentViewProps> = ({
                   <EmployeeCard
                     employee={employee}
                     onDelete={onDeleteEmployee}
+                    onUpdate={onUpdateEmployee}
                     showCostCenter={false}
                     detailed
                   />

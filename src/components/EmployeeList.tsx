@@ -10,6 +10,7 @@ interface EmployeeListProps {
   employees: Employee[];
   onAddEmployee: (name: string, costCenter: string, imageUrl: string) => void;
   onDeleteEmployee: (id: string) => void;
+  onUpdateEmployee?: (id: string, data: Partial<Employee>) => void;
   isLoading?: boolean;
   sortField: SortField;
   sortDirection: SortDirection;
@@ -20,6 +21,7 @@ const EmployeeList: React.FC<EmployeeListProps> = ({
   employees,
   onAddEmployee,
   onDeleteEmployee,
+  onUpdateEmployee,
   isLoading = false,
   sortField,
   sortDirection,
@@ -80,6 +82,7 @@ const EmployeeList: React.FC<EmployeeListProps> = ({
               <EmployeeCard
                 employee={employee}
                 onDelete={onDeleteEmployee}
+                onUpdate={onUpdateEmployee}
               />
             </div>
           ))

@@ -8,6 +8,7 @@ const Departments: React.FC = () => {
   const {
     loading,
     deleteEmployee,
+    updateEmployee,
     getCostCenters,
     getEmployeesByCostCenter,
   } = useEmployees();
@@ -23,6 +24,7 @@ const Departments: React.FC = () => {
           costCenters={costCenters}
           getEmployeesByDepartment={getEmployeesByCostCenter}
           onDeleteEmployee={deleteEmployee}
+          onUpdateEmployee={updateEmployee}
           isLoading={loading}
         />
       </main>

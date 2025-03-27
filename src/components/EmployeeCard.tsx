@@ -1,13 +1,26 @@
 
 import React from 'react';
-import { Trash } from 'lucide-react';
 import { Employee } from '@/types';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import { Trash2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import EditCostCenterForm from './EditCostCenterForm';
 
 interface EmployeeCardProps {
   employee: Employee;
   onDelete: (id: string) => void;
+  onUpdate?: (id: string, data: Partial<Employee>) => void;
   showCostCenter?: boolean;
   detailed?: boolean;
 }
@@ -15,69 +28,68 @@ interface EmployeeCardProps {
 const EmployeeCard: React.FC<EmployeeCardProps> = ({
   employee,
   onDelete,
+  onUpdate,
   showCostCenter = true,
   detailed = false,
 }) => {
   return (
-    <Card className={`w-full overflow-hidden employee-card-hover ${detailed ? 'glass-card' : ''}`}>
-      <CardContent className={`p-0 ${detailed ? 'relative' : ''}`}>
-        {detailed ? (
-          <div className="flex flex-col items-center p-6 animate-fade-up">
-            <div className="w-32 h-32 rounded-full overflow-hidden mb-4 border-2 border-white/70 shadow-subtle">
-              <img
-                src={employee.imageUrl || '/placeholder.svg'}
-                alt={employee.name}
-                className="w-full h-full object-cover transform transition-transform duration-700 hover:scale-110"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = '/placeholder.svg';
-                }}
-              />
-            </div>
-            <h3 className="text-xl font-medium mt-2">{employee.name}</h3>
-            {showCostCenter && (
-              <div className="bg-secondary/70 backdrop-blur-xs px-3 py-1 rounded-full text-sm text-muted-foreground my-2">
-                Cost Center: {employee.costCenter}
-              </div>
-            )}
+    <Card className={`overflow-hidden ${detailed ? 'h-full' : ''} relative group transition-all duration-300 hover:shadow-md`}>
+      <div className="relative aspect-square overflow-hidden">
+        <img
+          src={employee.imageUrl || '/placeholder.svg'}
+          alt={`Foto von ${employee.name}`}
+          className="object-cover w-full h-full"
+          onError={(e) => {
+            // Fallback für fehlerhafte Bilder
+            (e.target as HTMLImageElement).src = '/placeholder.svg';
+          }}
+        />
+        
+        {onUpdate && (
+          <EditCostCenterForm
+            employee={employee}
+            onUpdate={onUpdate}
+          />
+        )}
+        
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
             <Button
-              variant="ghost"
-              size="icon"
-              className="absolute top-2 right-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
-              onClick={() => onDelete(employee.id)}
+              variant="destructive"
+              size="sm"
+              className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
             >
-              <Trash size={18} />
+              <Trash2 className="h-4 w-4" />
+              <span className="sr-only">Mitarbeiter löschen</span>
             </Button>
-          </div>
-        ) : (
-          <div className="flex items-center justify-between p-4">
-            <div className="flex items-center space-x-4">
-              <div className="w-10 h-10 rounded-full overflow-hidden border border-border">
-                <img
-                  src={employee.imageUrl || '/placeholder.svg'}
-                  alt={employee.name}
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = '/placeholder.svg';
-                  }}
-                />
-              </div>
-              <div>
-                <h3 className="font-medium">{employee.name}</h3>
-                {showCostCenter && (
-                  <p className="text-sm text-muted-foreground">
-                    {employee.costCenter}
-                  </p>
-                )}
-              </div>
-            </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
-              onClick={() => onDelete(employee.id)}
-            >
-              <Trash size={16} />
-            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Mitarbeiter löschen</AlertDialogTitle>
+              <AlertDialogDescription>
+                Möchten Sie {employee.name} wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+              <AlertDialogAction onClick={() => onDelete(employee.id)}>
+                Löschen
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </div>
+      <CardContent className="p-4">
+        <h3 className="font-medium truncate">{employee.name}</h3>
+        {showCostCenter && (
+          <p className="text-sm text-muted-foreground">
+            KST: {employee.costCenter}
+          </p>
+        )}
+        {detailed && (
+          <div className="mt-2 space-y-1">
+            <p className="text-sm">KST: {employee.costCenter}</p>
+            {/* Weitere Details könnten hier angezeigt werden */}
           </div>
         )}
       </CardContent>
