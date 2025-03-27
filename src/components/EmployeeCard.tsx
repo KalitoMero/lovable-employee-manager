@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Trash2, Edit } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import EditCostCenterForm from './EditCostCenterForm';
 
 interface EmployeeCardProps {
@@ -34,25 +35,53 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({
 }) => {
   const [editDialogOpen, setEditDialogOpen] = React.useState(false);
   
+  // Get initials for avatar fallback
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(part => part[0])
+      .join('')
+      .toUpperCase()
+      .substring(0, 2);
+  };
+  
   return (
     <Card className={`overflow-hidden ${detailed ? 'h-full' : ''} relative group transition-all duration-300 hover:shadow-md`}>
-      <div className="relative w-full h-48">
-        <img
-          src={employee.imageUrl || '/placeholder.svg'}
-          alt={`Foto von ${employee.name}`}
-          className="object-cover w-full h-full"
-          onError={(e) => {
-            // Fallback für fehlerhafte Bilder
-            (e.target as HTMLImageElement).src = '/placeholder.svg';
-          }}
-        />
+      <CardContent className="p-4 flex items-center">
+        <Avatar className="h-10 w-10 mr-3 flex-shrink-0">
+          <AvatarImage 
+            src={employee.imageUrl || '/placeholder.svg'} 
+            alt={`Foto von ${employee.name}`}
+            onError={(e) => {
+              // Fallback for image errors
+              (e.target as HTMLImageElement).src = '/placeholder.svg';
+            }}
+          />
+          <AvatarFallback>{getInitials(employee.name)}</AvatarFallback>
+        </Avatar>
         
-        <div className="absolute bottom-2 right-2 flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="flex-1 min-w-0">
+          <h3 className="font-medium truncate">{employee.name}</h3>
+          {showCostCenter && (
+            <p className="text-sm text-muted-foreground truncate">
+              KST: {employee.costCenter}
+            </p>
+          )}
+          {detailed && (
+            <div className="mt-2 space-y-1">
+              <p className="text-sm">KST: {employee.costCenter}</p>
+              {/* Additional details could be shown here */}
+            </div>
+          )}
+        </div>
+        
+        <div className="flex space-x-1 ml-2">
           {onUpdate && (
             <Button
-              variant="secondary"
+              variant="ghost"
               size="sm"
               onClick={() => setEditDialogOpen(true)}
+              className="p-1 h-8 w-8"
             >
               <Edit className="h-4 w-4" />
               <span className="sr-only">Kostenstelle bearbeiten</span>
@@ -61,7 +90,7 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({
           
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button variant="destructive" size="sm">
+              <Button variant="ghost" size="sm" className="p-1 h-8 w-8 text-destructive hover:text-destructive">
                 <Trash2 className="h-4 w-4" />
                 <span className="sr-only">Mitarbeiter löschen</span>
               </Button>
@@ -82,20 +111,6 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({
             </AlertDialogContent>
           </AlertDialog>
         </div>
-      </div>
-      <CardContent className="p-4">
-        <h3 className="font-medium truncate">{employee.name}</h3>
-        {showCostCenter && (
-          <p className="text-sm text-muted-foreground">
-            KST: {employee.costCenter}
-          </p>
-        )}
-        {detailed && (
-          <div className="mt-2 space-y-1">
-            <p className="text-sm">KST: {employee.costCenter}</p>
-            {/* Weitere Details könnten hier angezeigt werden */}
-          </div>
-        )}
       </CardContent>
       
       {/* Edit Dialog */}
