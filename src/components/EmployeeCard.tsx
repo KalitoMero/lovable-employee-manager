@@ -74,6 +74,7 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({
         
         <div className={`${detailed ? 'text-center w-full' : 'flex-1 min-w-0'}`}>
           <h3 className={`font-medium ${detailed ? 'text-xl mt-2' : ''} truncate`}>{employee.name}</h3>
+          
           {!detailed && (
             <div className="text-sm text-muted-foreground space-y-1">
               {showCostCenter && (
@@ -89,6 +90,26 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({
               {employee.birthDate && (
                 <p className="truncate flex items-center gap-1">
                   <Cake className="h-3 w-3" /> {formatDate(employee.birthDate)}
+                </p>
+              )}
+            </div>
+          )}
+          
+          {detailed && (
+            <div className="mt-3 text-sm text-muted-foreground space-y-1">
+              {showCostCenter && (
+                <p className="flex items-center justify-center">
+                  KST: {employee.costCenter}
+                </p>
+              )}
+              {employee.entryDate && (
+                <p className="flex items-center justify-center gap-1">
+                  <Calendar className="h-3 w-3" /> Eintrittsdatum: {formatDate(employee.entryDate)}
+                </p>
+              )}
+              {employee.birthDate && (
+                <p className="flex items-center justify-center gap-1">
+                  <Cake className="h-3 w-3" /> Geburtstag: {formatDate(employee.birthDate)}
                 </p>
               )}
             </div>
