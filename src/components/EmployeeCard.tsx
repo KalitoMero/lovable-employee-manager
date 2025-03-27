@@ -46,9 +46,9 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({
   };
   
   return (
-    <Card className={`overflow-hidden ${detailed ? 'h-full' : ''} relative group transition-all duration-300 hover:shadow-md`}>
-      <CardContent className="p-4 flex items-center">
-        <Avatar className={`${detailed ? 'h-20 w-20' : 'h-10 w-10'} mr-3 flex-shrink-0 ${detailed ? 'border-[4px]' : 'border-[2px]'} border-primary/30`}>
+    <Card className={`overflow-hidden ${detailed ? 'h-full' : ''} relative group transition-all duration-300 hover:shadow-md ${detailed ? 'p-4' : ''}`}>
+      <CardContent className={`${detailed ? 'p-6 flex flex-col items-center' : 'p-4 flex items-center'}`}>
+        <Avatar className={`${detailed ? 'h-26 w-26' : 'h-10 w-10'} ${detailed ? 'mb-4' : 'mr-3'} flex-shrink-0 ${detailed ? 'border-[5px]' : 'border-[2px]'} border-primary/30`}>
           <AvatarImage 
             src={employee.imageUrl || '/placeholder.svg'} 
             alt={`Foto von ${employee.name}`}
@@ -60,22 +60,16 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({
           <AvatarFallback>{getInitials(employee.name)}</AvatarFallback>
         </Avatar>
         
-        <div className="flex-1 min-w-0">
-          <h3 className="font-medium truncate">{employee.name}</h3>
-          {showCostCenter && (
+        <div className={`${detailed ? 'text-center w-full' : 'flex-1 min-w-0'}`}>
+          <h3 className={`font-medium ${detailed ? 'text-xl mt-2' : ''} truncate`}>{employee.name}</h3>
+          {showCostCenter && !detailed && (
             <p className="text-sm text-muted-foreground truncate">
               KST: {employee.costCenter}
             </p>
           )}
-          {detailed && (
-            <div className="mt-2 space-y-1">
-              <p className="text-sm">KST: {employee.costCenter}</p>
-              {/* Additional details could be shown here */}
-            </div>
-          )}
         </div>
         
-        <div className="flex space-x-1 ml-2">
+        <div className={`flex ${detailed ? 'absolute top-2 right-2' : 'ml-2'}`}>
           {onUpdate && (
             <Button
               variant="ghost"

@@ -72,7 +72,7 @@ const DepartmentView: React.FC<DepartmentViewProps> = ({
 
         {costCenters.map((costCenter) => (
           <TabsContent key={costCenter} value={costCenter} className="animate-fade-up">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
               {getEmployeesByDepartment(costCenter).map((employee) => (
                 <div key={employee.id} className="animate-scale-in">
                   <EmployeeCard
