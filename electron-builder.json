@@ -1,0 +1,33 @@
+
+{
+  "appId": "com.lovable.employee-manager",
+  "productName": "Mitarbeiter-Manager",
+  "directories": {
+    "output": "release/"
+  },
+  "files": [
+    "dist/**/*",
+    "electron/**/*",
+    "electron.js"
+  ],
+  "win": {
+    "icon": "public/favicon.ico",
+    "target": [
+      "nsis"
+    ]
+  },
+  "linux": {
+    "icon": "public/favicon.ico",
+    "target": [
+      "AppImage",
+      "deb"
+    ],
+    "category": "Office"
+  },
+  "mac": {
+    "icon": "public/favicon.ico",
+    "target": [
+      "dmg"
+    ]
+  }
+}
