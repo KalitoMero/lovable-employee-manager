@@ -6,7 +6,7 @@ export function useLocalStorage<T>(
   initialValue: T
 ): [T, (value: T) => void] {
   // Check if we're running in Electron
-  const isElectron = window.electronAPI !== undefined;
+  const isElectron = typeof window !== 'undefined' && window.electronAPI !== undefined;
   
   // Get from local storage then
   // parse stored json or return initialValue

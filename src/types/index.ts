@@ -10,4 +10,5 @@ export interface Employee {
 
 export interface AppSettings {
   notificationEmail: string; // Email for birthday notifications
+  lastNotification?: string; // Last time a notification was sent
 }
