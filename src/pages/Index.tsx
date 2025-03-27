@@ -16,8 +16,8 @@ const Index: React.FC = () => {
     setSorting,
   } = useEmployees();
 
-  const handleAddEmployee = (name: string, costCenter: string, imageUrl: string) => {
-    addEmployee({ name, costCenter, imageUrl });
+  const handleAddEmployee = (name: string, costCenter: string, imageUrl: string, entryDate?: string, birthDate?: string) => {
+    addEmployee({ name, costCenter, imageUrl, entryDate, birthDate });
   };
 
   return (

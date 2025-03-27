@@ -1,15 +1,19 @@
 
 import React, { useState } from 'react';
-import { Plus, Upload, X } from 'lucide-react';
+import { Plus, Upload, X, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { toast } from 'sonner';
+import { Calendar as CalendarComponent } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 interface AddEmployeeFormProps {
-  onSubmit: (name: string, costCenter: string, imageUrl: string) => void;
+  onSubmit: (name: string, costCenter: string, imageUrl: string, entryDate?: string, birthDate?: string) => void;
 }
 
 const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({ onSubmit }) => {
@@ -17,6 +21,8 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({ onSubmit }) => {
   const [costCenter, setCostCenter] = useState('');
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [entryDate, setEntryDate] = useState<Date | undefined>(undefined);
+  const [birthDate, setBirthDate] = useState<Date | undefined>(undefined);
   const [open, setOpen] = useState(false);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -39,6 +45,8 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({ onSubmit }) => {
     setCostCenter('');
     setImageFile(null);
     setImagePreview(null);
+    setEntryDate(undefined);
+    setBirthDate(undefined);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -63,7 +71,13 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({ onSubmit }) => {
     // Convert image to base64 for storage
     const reader = new FileReader();
     reader.onloadend = () => {
-      onSubmit(name, costCenter, reader.result as string);
+      onSubmit(
+        name, 
+        costCenter, 
+        reader.result as string,
+        entryDate ? format(entryDate, 'yyyy-MM-dd') : undefined,
+        birthDate ? format(birthDate, 'yyyy-MM-dd') : undefined
+      );
       clearForm();
       setOpen(false);
     };
@@ -107,6 +121,61 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({ onSubmit }) => {
               maxLength={3}
               className="transition-all duration-300 focus:ring-2 focus:ring-primary/20"
             />
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="entryDate">Entry Date</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant={"outline"}
+                  className={cn(
+                    "w-full justify-start text-left font-normal",
+                    !entryDate && "text-muted-foreground"
+                  )}
+                >
+                  <Calendar className="mr-2 h-4 w-4" />
+                  {entryDate ? format(entryDate, 'PP') : <span>Select entry date</span>}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0">
+                <CalendarComponent
+                  mode="single"
+                  selected={entryDate}
+                  onSelect={setEntryDate}
+                  initialFocus
+                  className="p-3 pointer-events-auto"
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="birthDate">Birth Date</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant={"outline"}
+                  className={cn(
+                    "w-full justify-start text-left font-normal",
+                    !birthDate && "text-muted-foreground"
+                  )}
+                >
+                  <Calendar className="mr-2 h-4 w-4" />
+                  {birthDate ? format(birthDate, 'PP') : <span>Select birth date</span>}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0">
+                <CalendarComponent
+                  mode="single"
+                  selected={birthDate}
+                  onSelect={setBirthDate}
+                  initialFocus
+                  className="p-3 pointer-events-auto"
+                  disabled={(date) => date > new Date()}
+                />
+              </PopoverContent>
+            </Popover>
           </div>
           
           <div className="space-y-2">

@@ -8,7 +8,7 @@ import { ArrowUp, ArrowDown } from 'lucide-react';
 
 interface EmployeeListProps {
   employees: Employee[];
-  onAddEmployee: (name: string, costCenter: string, imageUrl: string) => void;
+  onAddEmployee: (name: string, costCenter: string, imageUrl: string, entryDate?: string, birthDate?: string) => void;
   onDeleteEmployee: (id: string) => void;
   onUpdateEmployee?: (id: string, data: Partial<Employee>) => void;
   isLoading?: boolean;
