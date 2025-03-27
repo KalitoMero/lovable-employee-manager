@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Employee } from '@/types';
 import { toast } from 'sonner';
@@ -186,10 +187,11 @@ export function useEmployees() {
     try {
       // First try the old storage method
       const savedEmployees = safeGetItem(STORAGE_KEY);
+      let parsedEmployees: Employee[] = [];
       
       if (savedEmployees) {
         // If old storage exists, convert to new chunked storage
-        const parsedEmployees = JSON.parse(savedEmployees);
+        parsedEmployees = JSON.parse(savedEmployees);
         setEmployees(parsedEmployees);
         // Store in new format for next time
         storeEmployeesInChunks(parsedEmployees);
@@ -197,12 +199,12 @@ export function useEmployees() {
         localStorage.removeItem(STORAGE_KEY);
       } else {
         // Try new chunked storage
-        const loadedEmployees = loadEmployeesFromChunks();
-        setEmployees(loadedEmployees);
+        parsedEmployees = loadEmployeesFromChunks();
+        setEmployees(parsedEmployees);
       }
       
       // After loading employees, check for birthdays
-      checkForBirthdays(loadedEmployees);
+      checkForBirthdays(parsedEmployees);
     } catch (error) {
       console.error('Error loading employees:', error);
       toast.error('Fehler beim Laden der Mitarbeiterdaten');

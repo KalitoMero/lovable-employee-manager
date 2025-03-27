@@ -13,10 +13,11 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { Trash2, Edit } from 'lucide-react';
+import { Trash2, Edit, Calendar, Cake } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import EditCostCenterForm from './EditCostCenterForm';
+import { format } from 'date-fns';
 
 interface EmployeeCardProps {
   employee: Employee;
@@ -44,6 +45,17 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({
       .toUpperCase()
       .substring(0, 2);
   };
+
+  // Format date helper
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return null;
+    try {
+      return format(new Date(dateString), 'dd.MM.yyyy');
+    } catch (error) {
+      console.error('Invalid date:', dateString);
+      return null;
+    }
+  };
   
   return (
     <Card className={`overflow-hidden ${detailed ? 'h-full' : ''} relative group transition-all duration-300 hover:shadow-md ${detailed ? 'p-4' : ''}`}>
@@ -62,10 +74,24 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({
         
         <div className={`${detailed ? 'text-center w-full' : 'flex-1 min-w-0'}`}>
           <h3 className={`font-medium ${detailed ? 'text-xl mt-2' : ''} truncate`}>{employee.name}</h3>
-          {showCostCenter && !detailed && (
-            <p className="text-sm text-muted-foreground truncate">
-              KST: {employee.costCenter}
-            </p>
+          {!detailed && (
+            <div className="text-sm text-muted-foreground space-y-1">
+              {showCostCenter && (
+                <p className="truncate flex items-center">
+                  KST: {employee.costCenter}
+                </p>
+              )}
+              {employee.entryDate && (
+                <p className="truncate flex items-center gap-1">
+                  <Calendar className="h-3 w-3" /> {formatDate(employee.entryDate)}
+                </p>
+              )}
+              {employee.birthDate && (
+                <p className="truncate flex items-center gap-1">
+                  <Cake className="h-3 w-3" /> {formatDate(employee.birthDate)}
+                </p>
+              )}
+            </div>
           )}
         </div>
         
