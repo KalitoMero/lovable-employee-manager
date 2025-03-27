@@ -48,7 +48,7 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({
   return (
     <Card className={`overflow-hidden ${detailed ? 'h-full' : ''} relative group transition-all duration-300 hover:shadow-md`}>
       <CardContent className="p-4 flex items-center">
-        <Avatar className={`${detailed ? 'h-12 w-12' : 'h-10 w-10'} mr-3 flex-shrink-0`}>
+        <Avatar className={`${detailed ? 'h-16 w-16' : 'h-10 w-10'} mr-3 flex-shrink-0`}>
           <AvatarImage 
             src={employee.imageUrl || '/placeholder.svg'} 
             alt={`Foto von ${employee.name}`}
