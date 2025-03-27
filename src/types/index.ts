@@ -8,7 +8,16 @@ export interface Employee {
   birthDate?: string; // Employee's birth date
 }
 
+export interface EmailSettings {
+  gf: string[]; // Array of GF emails (5 fields)
+  departmentEmails: DepartmentEmail[]; // Department specific emails
+}
+
+export interface DepartmentEmail {
+  email: string;
+  costCenter: string;
+}
+
 export interface AppSettings {
-  notificationEmail: string; // Email for birthday notifications
-  lastNotification?: string; // Last time a notification was sent
+  notificationEmail: string; // Email for notifications (keeping for backward compatibility)
 }

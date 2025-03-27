@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { Users, LayoutDashboard } from 'lucide-react';
+import { Users, LayoutDashboard, Mail } from 'lucide-react';
 
 const Navigation: React.FC = () => {
   return (
@@ -40,6 +40,20 @@ const Navigation: React.FC = () => {
           >
             <LayoutDashboard className="h-4 w-4" />
             <span>Abteilungen</span>
+          </NavLink>
+
+          <NavLink 
+            to="/email" 
+            className={({ isActive }) => 
+              `group px-4 py-2 rounded-full flex items-center space-x-2 transition-all duration-300 ${
+                isActive 
+                  ? 'bg-primary text-primary-foreground' 
+                  : 'text-muted-foreground hover:bg-accent'
+              }`
+            }
+          >
+            <Mail className="h-4 w-4" />
+            <span>Email</span>
           </NavLink>
         </nav>
       </div>
