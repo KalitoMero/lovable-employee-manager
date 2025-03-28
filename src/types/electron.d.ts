@@ -13,5 +13,6 @@ interface Window {
       lastNotification?: string;
       emailSettings?: import('./index').EmailSettings;
     }) => Promise<boolean>;
+    checkBirthdays: () => Promise<boolean>; // Add this line
   }
 }

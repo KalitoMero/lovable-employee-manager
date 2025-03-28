@@ -7,5 +7,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
   loadEmployees: () => ipcRenderer.invoke('loadEmployees'),
   saveEmployees: (employees) => ipcRenderer.invoke('saveEmployees', employees),
   loadSettings: () => ipcRenderer.invoke('loadSettings'),
-  saveSettings: (settings) => ipcRenderer.invoke('saveSettings', settings)
+  saveSettings: (settings) => ipcRenderer.invoke('saveSettings', settings),
+  checkBirthdays: () => ipcRenderer.invoke('checkBirthdays')
 });
