@@ -1,12 +1,13 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Trash } from 'lucide-react';
+import { Trash, Check } from 'lucide-react';
 import { EmailSettings } from '@/types';
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface EmailSettingsFormProps {
   emailSettings: EmailSettings;
@@ -23,10 +24,40 @@ const EmailSettingsForm: React.FC<EmailSettingsFormProps> = ({
   removeDepartmentEmail,
   availableCostCenters,
 }) => {
+  const [savedState, setSavedState] = useState<{[key: string]: boolean}>({});
+  
   // Function to handle adding a new department email
   const handleAddDepartmentEmail = () => {
     const nextIndex = emailSettings.departmentEmails.length;
     updateDepartmentEmail(nextIndex, '', availableCostCenters[0] || '');
+  };
+  
+  // Handle GF email changes with confirmation
+  const handleGfEmailChange = (index: number, email: string) => {
+    updateGfEmail(index, email);
+    
+    // Show saved confirmation
+    const key = `gf-${index}`;
+    setSavedState(prev => ({ ...prev, [key]: true }));
+    
+    // Hide confirmation after 3 seconds
+    setTimeout(() => {
+      setSavedState(prev => ({ ...prev, [key]: false }));
+    }, 3000);
+  };
+  
+  // Handle department email changes with confirmation
+  const handleDepartmentEmailChange = (index: number, email: string, costCenter: string) => {
+    updateDepartmentEmail(index, email, costCenter);
+    
+    // Show saved confirmation
+    const key = `dept-${index}`;
+    setSavedState(prev => ({ ...prev, [key]: true }));
+    
+    // Hide confirmation after 3 seconds
+    setTimeout(() => {
+      setSavedState(prev => ({ ...prev, [key]: false }));
+    }, 3000);
   };
 
   return (
@@ -41,15 +72,23 @@ const EmailSettingsForm: React.FC<EmailSettingsFormProps> = ({
         <CardContent>
           <div className="grid gap-4">
             {emailSettings.gf.map((email, index) => (
-              <div key={`gf-${index}`} className="grid gap-2">
-                <Label htmlFor={`gf-email-${index}`}>E-Mail {index + 1}</Label>
-                <Input
-                  id={`gf-email-${index}`}
-                  type="email"
-                  value={email}
-                  onChange={(e) => updateGfEmail(index, e.target.value)}
-                  placeholder="email@beispiel.de"
-                />
+              <div key={`gf-${index}`} className="grid grid-cols-[1fr_auto] gap-2 items-end">
+                <div className="grid gap-2">
+                  <Label htmlFor={`gf-email-${index}`}>E-Mail {index + 1}</Label>
+                  <Input
+                    id={`gf-email-${index}`}
+                    type="email"
+                    value={email}
+                    onChange={(e) => handleGfEmailChange(index, e.target.value)}
+                    placeholder="email@beispiel.de"
+                  />
+                </div>
+                
+                {savedState[`gf-${index}`] && (
+                  <div className="mb-1 flex items-center justify-center h-9 w-9 bg-green-100 rounded-full">
+                    <Check className="h-5 w-5 text-green-600" />
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -72,14 +111,14 @@ const EmailSettingsForm: React.FC<EmailSettingsFormProps> = ({
           ) : (
             <div className="space-y-4">
               {emailSettings.departmentEmails.map((item, index) => (
-                <div key={`dept-${index}`} className="grid grid-cols-[1fr_auto_auto] gap-4 items-end">
+                <div key={`dept-${index}`} className="grid grid-cols-[1fr_auto_auto_auto] gap-4 items-end">
                   <div className="grid gap-2">
                     <Label htmlFor={`dept-email-${index}`}>E-Mail</Label>
                     <Input
                       id={`dept-email-${index}`}
                       type="email"
                       value={item.email}
-                      onChange={(e) => updateDepartmentEmail(index, e.target.value, item.costCenter)}
+                      onChange={(e) => handleDepartmentEmailChange(index, e.target.value, item.costCenter)}
                       placeholder="abteilungsleiter@beispiel.de"
                     />
                   </div>
@@ -88,7 +127,7 @@ const EmailSettingsForm: React.FC<EmailSettingsFormProps> = ({
                     <Label htmlFor={`dept-kst-${index}`}>KST</Label>
                     <Select
                       value={item.costCenter}
-                      onValueChange={(value) => updateDepartmentEmail(index, item.email, value)}
+                      onValueChange={(value) => handleDepartmentEmailChange(index, item.email, value)}
                     >
                       <SelectTrigger id={`dept-kst-${index}`} className="w-[110px]">
                         <SelectValue placeholder="Wählen..." />
@@ -102,6 +141,12 @@ const EmailSettingsForm: React.FC<EmailSettingsFormProps> = ({
                       </SelectContent>
                     </Select>
                   </div>
+                  
+                  {savedState[`dept-${index}`] && (
+                    <div className="mb-0.5 flex items-center justify-center h-9 w-9 bg-green-100 rounded-full">
+                      <Check className="h-5 w-5 text-green-600" />
+                    </div>
+                  )}
                   
                   <Button
                     variant="ghost"
