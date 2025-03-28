@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Plus, Upload, X, Calendar } from 'lucide-react';
+import { Plus, Upload, X, Calendar, Check, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -11,6 +11,13 @@ import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface AddEmployeeFormProps {
   onSubmit: (name: string, costCenter: string, imageUrl: string, entryDate?: string, birthDate?: string) => void;
@@ -24,6 +31,20 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({ onSubmit }) => {
   const [entryDate, setEntryDate] = useState<Date | undefined>(undefined);
   const [birthDate, setBirthDate] = useState<Date | undefined>(undefined);
   const [open, setOpen] = useState(false);
+  
+  // Year selection for birthdate
+  const [yearView, setYearView] = useState(false);
+  const [decadeView, setDecadeView] = useState(false);
+  const [selectedDecade, setSelectedDecade] = useState<number | null>(null);
+  const currentYear = new Date().getFullYear();
+  
+  // Generate decades for selection (from 1920 to current year)
+  const decades = Array.from({ length: Math.ceil((currentYear - 1920) / 10) }, (_, i) => 1920 + i * 10);
+  
+  // Generate years for a specific decade
+  const getYearsForDecade = (decade: number) => {
+    return Array.from({ length: 10 }, (_, i) => decade + i);
+  };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -82,6 +103,33 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({ onSubmit }) => {
       setOpen(false);
     };
     reader.readAsDataURL(imageFile);
+  };
+  
+  // Handle year selection
+  const handleSelectYear = (year: number) => {
+    const newDate = new Date(birthDate || new Date());
+    newDate.setFullYear(year);
+    setBirthDate(newDate);
+    setYearView(false);
+  };
+  
+  // Handle decade selection
+  const handleSelectDecade = (decade: number) => {
+    setSelectedDecade(decade);
+    setDecadeView(false);
+    setYearView(true);
+  };
+  
+  // Toggle between decade/year view
+  const toggleCalendarView = () => {
+    if (yearView) {
+      setYearView(false);
+      setDecadeView(true);
+    } else if (decadeView) {
+      setDecadeView(false);
+    } else {
+      setYearView(true);
+    }
   };
 
   return (
@@ -166,14 +214,83 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({ onSubmit }) => {
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0">
-                <CalendarComponent
-                  mode="single"
-                  selected={birthDate}
-                  onSelect={setBirthDate}
-                  initialFocus
-                  className="p-3 pointer-events-auto"
-                  disabled={(date) => date > new Date()}
-                />
+                {decadeView ? (
+                  <div className="p-3 pointer-events-auto">
+                    <div className="flex justify-between items-center mb-4">
+                      <Button variant="outline" size="sm" onClick={() => setDecadeView(false)}>
+                        Back
+                      </Button>
+                      <h3 className="text-sm font-medium">Select Decade</h3>
+                      <div className="w-12"></div> {/* Spacer for alignment */}
+                    </div>
+                    <div className="grid grid-cols-3 gap-2">
+                      {decades.map((decade) => (
+                        <Button
+                          key={decade}
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleSelectDecade(decade)}
+                          className="h-10"
+                        >
+                          {decade}s
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                ) : yearView ? (
+                  <div className="p-3 pointer-events-auto">
+                    <div className="flex justify-between items-center mb-4">
+                      <Button variant="outline" size="sm" onClick={() => setYearView(false)}>
+                        Back
+                      </Button>
+                      <h3 className="text-sm font-medium">
+                        {selectedDecade}s
+                      </h3>
+                      <Button variant="outline" size="sm" onClick={() => setDecadeView(true)}>
+                        Decades
+                      </Button>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2">
+                      {selectedDecade &&
+                        getYearsForDecade(selectedDecade).map((year) => (
+                          <Button
+                            key={year}
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleSelectYear(year)}
+                            className="h-10"
+                          >
+                            {year}
+                          </Button>
+                        ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <div className="flex justify-center p-2 bg-muted/40 border-b">
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={toggleCalendarView}
+                        className="flex items-center text-sm font-medium"
+                      >
+                        {birthDate ? format(birthDate, 'MMMM yyyy') : 'Select Year'}
+                        <ChevronDown className="ml-1 h-4 w-4" />
+                      </Button>
+                    </div>
+                    <CalendarComponent
+                      mode="single"
+                      selected={birthDate}
+                      onSelect={setBirthDate}
+                      initialFocus
+                      className="p-3 pointer-events-auto"
+                      disabled={(date) => date > new Date()}
+                      captionLayout="dropdown-buttons"
+                      fromYear={1920}
+                      toYear={currentYear}
+                    />
+                  </div>
+                )}
               </PopoverContent>
             </Popover>
           </div>

@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Trash, Check } from 'lucide-react';
+import { Trash, Check, Save } from 'lucide-react';
 import { EmailSettings } from '@/types';
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
@@ -25,6 +25,16 @@ const EmailSettingsForm: React.FC<EmailSettingsFormProps> = ({
   availableCostCenters,
 }) => {
   const [savedState, setSavedState] = useState<{[key: string]: boolean}>({});
+  const [pendingGfEmails, setPendingGfEmails] = useState<string[]>([...emailSettings.gf]);
+  const [pendingDeptEmails, setPendingDeptEmails] = useState<{email: string, costCenter: string}[]>(
+    [...emailSettings.departmentEmails]
+  );
+  
+  // Update pending states when props change
+  useEffect(() => {
+    setPendingGfEmails([...emailSettings.gf]);
+    setPendingDeptEmails([...emailSettings.departmentEmails]);
+  }, [emailSettings]);
   
   // Function to handle adding a new department email
   const handleAddDepartmentEmail = () => {
@@ -32,9 +42,16 @@ const EmailSettingsForm: React.FC<EmailSettingsFormProps> = ({
     updateDepartmentEmail(nextIndex, '', availableCostCenters[0] || '');
   };
   
-  // Handle GF email changes with confirmation
-  const handleGfEmailChange = (index: number, email: string) => {
-    updateGfEmail(index, email);
+  // Handle pending GF email changes
+  const handlePendingGfEmailChange = (index: number, email: string) => {
+    const updatedEmails = [...pendingGfEmails];
+    updatedEmails[index] = email;
+    setPendingGfEmails(updatedEmails);
+  };
+  
+  // Handle GF email save with confirmation
+  const handleGfEmailSave = (index: number) => {
+    updateGfEmail(index, pendingGfEmails[index]);
     
     // Show saved confirmation
     const key = `gf-${index}`;
@@ -46,8 +63,23 @@ const EmailSettingsForm: React.FC<EmailSettingsFormProps> = ({
     }, 3000);
   };
   
-  // Handle department email changes with confirmation
-  const handleDepartmentEmailChange = (index: number, email: string, costCenter: string) => {
+  // Handle pending department email changes
+  const handlePendingDeptEmailChange = (index: number, email: string) => {
+    const updatedEmails = [...pendingDeptEmails];
+    updatedEmails[index] = { ...updatedEmails[index], email };
+    setPendingDeptEmails(updatedEmails);
+  };
+  
+  // Handle pending department cost center changes
+  const handlePendingDeptCostCenterChange = (index: number, costCenter: string) => {
+    const updatedEmails = [...pendingDeptEmails];
+    updatedEmails[index] = { ...updatedEmails[index], costCenter };
+    setPendingDeptEmails(updatedEmails);
+  };
+  
+  // Handle department email save with confirmation
+  const handleDeptEmailSave = (index: number) => {
+    const { email, costCenter } = pendingDeptEmails[index];
     updateDepartmentEmail(index, email, costCenter);
     
     // Show saved confirmation
@@ -58,6 +90,11 @@ const EmailSettingsForm: React.FC<EmailSettingsFormProps> = ({
     setTimeout(() => {
       setSavedState(prev => ({ ...prev, [key]: false }));
     }, 3000);
+  };
+
+  // Helper function to check if email is valid
+  const isValidEmail = (email: string): boolean => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email === '';
   };
 
   return (
@@ -72,17 +109,30 @@ const EmailSettingsForm: React.FC<EmailSettingsFormProps> = ({
         <CardContent>
           <div className="grid gap-4">
             {emailSettings.gf.map((email, index) => (
-              <div key={`gf-${index}`} className="grid grid-cols-[1fr_auto] gap-2 items-end">
+              <div key={`gf-${index}`} className="grid grid-cols-[1fr_auto_auto] gap-2 items-end">
                 <div className="grid gap-2">
                   <Label htmlFor={`gf-email-${index}`}>E-Mail {index + 1}</Label>
                   <Input
                     id={`gf-email-${index}`}
                     type="email"
-                    value={email}
-                    onChange={(e) => handleGfEmailChange(index, e.target.value)}
+                    value={pendingGfEmails[index]}
+                    onChange={(e) => handlePendingGfEmailChange(index, e.target.value)}
                     placeholder="email@beispiel.de"
+                    className={!isValidEmail(pendingGfEmails[index]) && pendingGfEmails[index] !== '' 
+                      ? "border-destructive" 
+                      : ""}
                   />
                 </div>
+                
+                <Button 
+                  onClick={() => handleGfEmailSave(index)}
+                  size="icon"
+                  variant="outline"
+                  disabled={!isValidEmail(pendingGfEmails[index]) || pendingGfEmails[index] === email}
+                  className="mb-1"
+                >
+                  <Save className="h-4 w-4" />
+                </Button>
                 
                 {savedState[`gf-${index}`] && (
                   <div className="mb-1 flex items-center justify-center h-9 w-9 bg-green-100 rounded-full">
@@ -111,23 +161,26 @@ const EmailSettingsForm: React.FC<EmailSettingsFormProps> = ({
           ) : (
             <div className="space-y-4">
               {emailSettings.departmentEmails.map((item, index) => (
-                <div key={`dept-${index}`} className="grid grid-cols-[1fr_auto_auto_auto] gap-4 items-end">
+                <div key={`dept-${index}`} className="grid grid-cols-[1fr_auto_auto_auto_auto] gap-3 items-end">
                   <div className="grid gap-2">
                     <Label htmlFor={`dept-email-${index}`}>E-Mail</Label>
                     <Input
                       id={`dept-email-${index}`}
                       type="email"
-                      value={item.email}
-                      onChange={(e) => handleDepartmentEmailChange(index, e.target.value, item.costCenter)}
+                      value={pendingDeptEmails[index]?.email || ''}
+                      onChange={(e) => handlePendingDeptEmailChange(index, e.target.value)}
                       placeholder="abteilungsleiter@beispiel.de"
+                      className={!isValidEmail(pendingDeptEmails[index]?.email || '') && pendingDeptEmails[index]?.email !== '' 
+                        ? "border-destructive" 
+                        : ""}
                     />
                   </div>
                   
                   <div className="grid gap-2">
                     <Label htmlFor={`dept-kst-${index}`}>KST</Label>
                     <Select
-                      value={item.costCenter}
-                      onValueChange={(value) => handleDepartmentEmailChange(index, item.email, value)}
+                      value={pendingDeptEmails[index]?.costCenter || ''}
+                      onValueChange={(value) => handlePendingDeptCostCenterChange(index, value)}
                     >
                       <SelectTrigger id={`dept-kst-${index}`} className="w-[110px]">
                         <SelectValue placeholder="Wählen..." />
@@ -141,6 +194,20 @@ const EmailSettingsForm: React.FC<EmailSettingsFormProps> = ({
                       </SelectContent>
                     </Select>
                   </div>
+                  
+                  <Button 
+                    onClick={() => handleDeptEmailSave(index)}
+                    size="icon"
+                    variant="outline"
+                    disabled={
+                      !isValidEmail(pendingDeptEmails[index]?.email || '') || 
+                      (pendingDeptEmails[index]?.email === item.email && 
+                       pendingDeptEmails[index]?.costCenter === item.costCenter)
+                    }
+                    className="mb-0.5"
+                  >
+                    <Save className="h-4 w-4" />
+                  </Button>
                   
                   {savedState[`dept-${index}`] && (
                     <div className="mb-0.5 flex items-center justify-center h-9 w-9 bg-green-100 rounded-full">
