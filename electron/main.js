@@ -76,10 +76,22 @@ ipcMain.handle('loadSettings', async () => {
       const data = fs.readFileSync(settingsDataPath, 'utf8');
       return JSON.parse(data);
     }
-    return { notificationEmail: null };
+    return { 
+      notificationEmail: null,
+      emailSettings: {
+        gf: ['', '', '', '', ''],
+        departmentEmails: []
+      }
+    };
   } catch (error) {
     console.error('Error loading settings:', error);
-    return { notificationEmail: null };
+    return { 
+      notificationEmail: null,
+      emailSettings: {
+        gf: ['', '', '', '', ''],
+        departmentEmails: []
+      }
+    };
   }
 });
 

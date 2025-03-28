@@ -6,10 +6,12 @@ interface Window {
     loadSettings: () => Promise<{ 
       notificationEmail: string | null;
       lastNotification?: string;
+      emailSettings?: import('./index').EmailSettings;
     }>;
     saveSettings: (settings: { 
       notificationEmail: string | null;
       lastNotification?: string;
+      emailSettings?: import('./index').EmailSettings;
     }) => Promise<boolean>;
   }
 }

@@ -17,11 +17,21 @@ export function useLocalStorage<T>(
     }
 
     try {
-      if (isElectron && key === 'employee-manager-notification-email') {
-        // Use Electron's storage for email settings
+      if (isElectron) {
+        // Use Electron's storage for settings
         const settings = await window.electronAPI.loadSettings();
-        // Fix: Cast the notificationEmail to type T or return initialValue
-        return (settings.notificationEmail as unknown as T) || initialValue;
+        
+        if (key === 'employee-manager-notification-email') {
+          // Return notification email
+          return (settings.notificationEmail as unknown as T) || initialValue;
+        } else if (key === 'employee-manager-email-settings') {
+          // Return email settings
+          return (settings.emailSettings as unknown as T) || initialValue;
+        } else {
+          // For other keys, use localStorage
+          const item = window.localStorage.getItem(key);
+          return item ? (JSON.parse(item) as T) : initialValue;
+        }
       } else {
         // Use regular localStorage
         const item = window.localStorage.getItem(key);
@@ -62,11 +72,24 @@ export function useLocalStorage<T>(
       
       // Save to storage
       if (typeof window !== 'undefined') {
-        if (isElectron && key === 'employee-manager-notification-email') {
-          // Use Electron's storage for email settings
-          await window.electronAPI.saveSettings({
-            notificationEmail: valueToStore as string,
-          });
+        if (isElectron) {
+          // For Electron storage
+          if (key === 'employee-manager-notification-email') {
+            // Save notification email
+            await window.electronAPI.saveSettings({
+              notificationEmail: valueToStore as string,
+            });
+          } else if (key === 'employee-manager-email-settings') {
+            // Save email settings
+            const currentSettings = await window.electronAPI.loadSettings();
+            await window.electronAPI.saveSettings({
+              ...currentSettings,
+              emailSettings: valueToStore
+            });
+          } else {
+            // For other keys, use localStorage
+            window.localStorage.setItem(key, JSON.stringify(valueToStore));
+          }
         } else {
           // Use regular localStorage
           window.localStorage.setItem(key, JSON.stringify(valueToStore));
