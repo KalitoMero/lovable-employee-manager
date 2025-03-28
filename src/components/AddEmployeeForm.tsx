@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -105,23 +105,41 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({ onSubmit }) => {
     reader.readAsDataURL(imageFile);
   };
   
-  // Handle year selection
-  const handleSelectYear = (year: number) => {
+  // Handle year selection - prevent event propagation to avoid dialog scroll
+  const handleSelectYear = (year: number, e?: React.MouseEvent) => {
+    // Stop event propagation if event is provided
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    
     const newDate = new Date(birthDate || new Date());
     newDate.setFullYear(year);
     setBirthDate(newDate);
     setYearView(false);
   };
   
-  // Handle decade selection
-  const handleSelectDecade = (decade: number) => {
+  // Handle decade selection - prevent event propagation to avoid dialog scroll
+  const handleSelectDecade = (decade: number, e?: React.MouseEvent) => {
+    // Stop event propagation if event is provided
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    
     setSelectedDecade(decade);
     setDecadeView(false);
     setYearView(true);
   };
   
-  // Toggle between decade/year view
-  const toggleCalendarView = () => {
+  // Toggle between decade/year view - prevent event propagation to avoid dialog scroll
+  const toggleCalendarView = (e?: React.MouseEvent) => {
+    // Stop event propagation if event is provided
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    
     if (yearView) {
       setYearView(false);
       setDecadeView(true);
@@ -142,6 +160,7 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({ onSubmit }) => {
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Add New Employee</DialogTitle>
+          <DialogDescription>Fill in the employee information and click Add Employee when done.</DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 py-2">
           <div className="space-y-2">
@@ -213,11 +232,14 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({ onSubmit }) => {
                   {birthDate ? format(birthDate, 'PP') : <span>Select birth date</span>}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0">
+              <PopoverContent className="w-auto p-0" onOpenAutoFocus={(e) => e.preventDefault()}>
                 {decadeView ? (
                   <div className="p-3 pointer-events-auto">
                     <div className="flex justify-between items-center mb-4">
-                      <Button variant="outline" size="sm" onClick={() => setDecadeView(false)}>
+                      <Button variant="outline" size="sm" onClick={(e) => {
+                        e.stopPropagation();
+                        setDecadeView(false);
+                      }}>
                         Back
                       </Button>
                       <h3 className="text-sm font-medium">Select Decade</h3>
@@ -229,8 +251,9 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({ onSubmit }) => {
                           key={decade}
                           variant="outline"
                           size="sm"
-                          onClick={() => handleSelectDecade(decade)}
+                          onClick={(e) => handleSelectDecade(decade, e)}
                           className="h-10"
+                          type="button"
                         >
                           {decade}s
                         </Button>
@@ -240,13 +263,29 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({ onSubmit }) => {
                 ) : yearView ? (
                   <div className="p-3 pointer-events-auto">
                     <div className="flex justify-between items-center mb-4">
-                      <Button variant="outline" size="sm" onClick={() => setYearView(false)}>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setYearView(false);
+                        }}
+                        type="button"
+                      >
                         Back
                       </Button>
                       <h3 className="text-sm font-medium">
                         {selectedDecade}s
                       </h3>
-                      <Button variant="outline" size="sm" onClick={() => setDecadeView(true)}>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setDecadeView(true);
+                        }}
+                        type="button"
+                      >
                         Decades
                       </Button>
                     </div>
@@ -257,8 +296,9 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({ onSubmit }) => {
                             key={year}
                             variant="outline"
                             size="sm"
-                            onClick={() => handleSelectYear(year)}
+                            onClick={(e) => handleSelectYear(year, e)}
                             className="h-10"
+                            type="button"
                           >
                             {year}
                           </Button>
@@ -271,8 +311,9 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({ onSubmit }) => {
                       <Button 
                         variant="ghost" 
                         size="sm" 
-                        onClick={toggleCalendarView}
+                        onClick={(e) => toggleCalendarView(e)}
                         className="flex items-center text-sm font-medium"
+                        type="button"
                       >
                         {birthDate ? format(birthDate, 'MMMM yyyy') : 'Select Year'}
                         <ChevronDown className="ml-1 h-4 w-4" />
